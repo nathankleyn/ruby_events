@@ -80,6 +80,14 @@
 
   <div id="contextContent">
 
+    <div id="description">
+      <p>
+The <a href="Events.html">Events</a> class. Contains all the methods and
+functionality that drives the actual processes of adding, listening,
+calling and receiving events.
+</p>
+
+    </div>
 
 
    </div>
@@ -132,11 +140,10 @@ be using.
             onclick="toggleCode('M000002-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000002-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 10</span>
-10:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">parent</span>)
-11:       <span class="ruby-ivar">@parent</span> = <span class="ruby-identifier">parent</span>
-12:       <span class="ruby-ivar">@events</span> = {}
-13:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 12</span>
+12:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">parent</span>)
+13:       <span class="ruby-ivar">@parent</span>, <span class="ruby-ivar">@events</span> = <span class="ruby-identifier">parent</span>, {}
+14:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -162,14 +169,12 @@ arguments as provided.
             onclick="toggleCode('M000004-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000004-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 24</span>
-24:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fire</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">arguments</span>)
-25:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@events</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">event_type</span>)
-26:         <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">event</span><span class="ruby-operator">|</span>
-27:           <span class="ruby-identifier">event</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">arguments</span>
-28:         <span class="ruby-keyword kw">end</span>
-29:       <span class="ruby-keyword kw">end</span>
-30:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 25</span>
+25:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fire</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">arguments</span>)
+26:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">event</span><span class="ruby-operator">|</span>
+27:         <span class="ruby-identifier">event</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">arguments</span>
+28:       <span class="ruby-keyword kw">end</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">event_is_defined</span>
+29:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -194,31 +199,29 @@ methods.
             onclick="toggleCode('M000005-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000005-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 34</span>
-34:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fire_on_method</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">event_type</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-35:       <span class="ruby-identifier">old_method</span> = (<span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 33</span>
+33:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fire_on_method</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">event_type</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+34:       <span class="ruby-identifier">method_s</span>, <span class="ruby-identifier">old_method_s</span> = <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-identifier">old_method</span>.<span class="ruby-identifier">to_s</span>
+35:       <span class="ruby-identifier">old_method</span> = (<span class="ruby-identifier">method_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
 36:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@parent</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">method</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">old_method</span>)
-37:         <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
-38:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">old_method</span>, <span class="ruby-identifier">method</span>
-39:         <span class="ruby-keyword kw">end</span>
-40:         
-41:         <span class="ruby-identifier">method</span> = <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span>
-42:         <span class="ruby-identifier">old_method</span> = <span class="ruby-identifier">old_method</span>.<span class="ruby-identifier">to_s</span>
-43:         
-44:         <span class="ruby-comment cmt"># FIXME: We need to find a way to call the block that's been passed</span>
-45:         <span class="ruby-comment cmt"># so they can define the arguments they want to pass to the event.</span>
-46:         <span class="ruby-comment cmt">#</span>
-47:         <span class="ruby-comment cmt"># We are using self.send instead of calling the method directory because</span>
-48:         <span class="ruby-comment cmt"># methods like &lt;&lt; can not be resolved as a method properly once they've</span>
-49:         <span class="ruby-comment cmt"># had the _event_old suffix tacked on the end.</span>
-50:         <span class="ruby-comment cmt">#</span>
-51:         <span class="ruby-comment cmt"># Make sure the self.send is at the end, or we won't return what we</span>
-52:         <span class="ruby-comment cmt"># are supposed to.</span>
-53:         <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">class_eval</span>(<span class="ruby-value str">'def '</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'(*args); events.fire(:'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">event_type</span> <span class="ruby-operator">+</span> <span class="ruby-value str">', *args); self.send(&quot;'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">old_method</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'&quot;.to_sym, *args); end'</span>)
-54:       <span class="ruby-keyword kw">else</span>
-55:         <span class="ruby-comment cmt"># TODO: Need to raise exception here.</span>
-56:       <span class="ruby-keyword kw">end</span>
-57:     <span class="ruby-keyword kw">end</span>
+37:         <span class="ruby-ivar">@parent</span> = <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class</span>
+38:         <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
+39:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">old_method</span>, <span class="ruby-identifier">method</span>
+40:         <span class="ruby-keyword kw">end</span>
+41:         <span class="ruby-comment cmt"># FIXME: We need to find a way to call the block that's been passed</span>
+42:         <span class="ruby-comment cmt"># so they can define the arguments they want to pass to the event.</span>
+43:         <span class="ruby-comment cmt">#</span>
+44:         <span class="ruby-comment cmt"># We are using self.send instead of calling the method directory because</span>
+45:         <span class="ruby-comment cmt"># methods like &lt;&lt; can not be resolved as a method properly once they've</span>
+46:         <span class="ruby-comment cmt"># had the _event_old suffix tacked on the end.</span>
+47:         <span class="ruby-comment cmt">#</span>
+48:         <span class="ruby-comment cmt"># Make sure the self.send is at the end, or we won't return what we</span>
+49:         <span class="ruby-comment cmt"># are supposed to.</span>
+50:         <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class_eval</span>(<span class="ruby-value str">'def '</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'(*args); events.fire(:'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">event_type</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">', *args); self.send(&quot;'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">old_method_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'&quot;.to_sym, *args); end'</span>)
+51:       <span class="ruby-keyword kw">else</span>
+52:         <span class="ruby-comment cmt"># TODO: Need to raise exception here.</span>
+53:       <span class="ruby-keyword kw">end</span>
+54:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -241,12 +244,12 @@ Add a listener to the passed event type.
             onclick="toggleCode('M000003-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000003-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 16</span>
-16:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">listen</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">event</span>)
-17:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>] = [] <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@events</span>.<span class="ruby-identifier">has_key?</span> <span class="ruby-identifier">event_type</span>
-18:       <span class="ruby-comment cmt"># TODO: Can we allow both block and an array of Proc's here?</span>
-19:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>] <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">event</span>
-20:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 17</span>
+17:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">listen</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">event</span>)
+18:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>] = [] <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">event_is_defined</span>
+19:       <span class="ruby-comment cmt"># TODO: Can we allow both block and an array of Proc's here?</span>
+20:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>] <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">event</span>
+21:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -269,12 +272,10 @@ Remove a method from the listening queue.
             onclick="toggleCode('M000006-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000006-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 60</span>
-60:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">remove</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">event</span>)
-61:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@events</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">event_type</span>)
-62:         <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">delete_if</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">stored_event</span><span class="ruby-operator">|</span> <span class="ruby-identifier">stored_event</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">event</span>}
-63:       <span class="ruby-keyword kw">end</span>
-64:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 57</span>
+57:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">remove</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">event</span>)
+58:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">delete_if</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">stored_event</span><span class="ruby-operator">|</span> <span class="ruby-identifier">stored_event</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">event</span>} <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">event_is_defined</span>
+59:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
