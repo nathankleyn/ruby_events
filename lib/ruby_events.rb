@@ -15,7 +15,7 @@ module RubyEvents
 
     # Add a listener to the passed event type.
     def listen(event_type, &event)
-      @events[event_type] = [] unless event_is_defined
+      @events[event_type] = [] unless event_is_defined(event_type)
       # TODO: Can we allow both block and an array of Proc's here?
       @events[event_type] << event
     end
@@ -25,7 +25,7 @@ module RubyEvents
     def fire(event_type, *arguments)
       @events[event_type].each do |event|
         event.call arguments
-      end if event_is_defined
+      end if event_is_defined(event_type)
     end
     
     # Set an event to fire when passed method is called. This is useful for
@@ -55,7 +55,7 @@ module RubyEvents
 
     # Remove a method from the listening queue.
     def remove(event_type, event)
-      @events[event_type].delete_if {|stored_event| stored_event == event} if event_is_defined
+      @events[event_type].delete_if {|stored_event| stored_event == event} if event_is_defined(event_type)
     end
     
     private
