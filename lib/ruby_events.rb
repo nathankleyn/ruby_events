@@ -7,17 +7,29 @@ module RubyEvents
   # The Events class. Contains all the methods and functionality that drives
   # the actual processes of adding, listening, calling and receiving events.
   class Events
+    # The current version of RubyEvents.
+    def self.version
+      '0.0.7'
+    end
+    
     # Initialize the events class by instantiating the class methods we'll be
     # using.
     def initialize(parent)
       @parent, @events = parent, {}
     end
 
-    # Add a listener to the passed event type.
-    def listen(event_type, &event)
+    # Add a listener to the passed event type. You can pass a Proc, an array of
+    # Proc's, or a block.
+    def listen(event_type, procs = nil, &block)
       @events[event_type] = [] unless event_is_defined(event_type)
-      # TODO: Can we allow both block and an array of Proc's here?
-      @events[event_type] << event
+      procs_collected = []
+      if procs.respond_to?(:each)
+        procs_collected += procs.to_a
+      elsif procs
+        procs_collected << procs
+      end
+      procs_collected << block if block
+      @events[event_type] += procs_collected
     end
 
     # Fire all registered listeners to the passed event, passing them the
@@ -31,8 +43,9 @@ module RubyEvents
     # Set an event to fire when passed method is called. This is useful for
     # adding callbacks or events to built-in methods.
     def fire_on_method(method, event_type, &block)
-      method_s, old_method_s = method.to_s, old_method.to_s
+      method_s = method.to_s
       old_method = (method_s + '_event_old').to_sym
+      old_method_s = old_method.to_s
       if @parent && @parent.respond_to?(method) && !@parent.respond_to?(old_method)
         @parent = @parent.class
         @parent.class_eval do
