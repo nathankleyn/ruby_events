@@ -56,7 +56,7 @@
     </tr>
     <tr class="top-aligned-row">
       <td><strong>Last Update:</strong></td>
-      <td>Mon Apr 26 22:32:49 +0100 2010</td>
+      <td>Wed May 12 17:34:33 +0100 2010</td>
     </tr>
     </table>
   </div>
@@ -137,6 +137,18 @@ with a little bit of sugar:
     a.events.listen(:injected) do |event_data|
       puts event_data;
     end
+
+    a &lt;&lt; 'this is a test'
+</pre>
+<p>
+You can supply the `listen` method with a Proc, an array of Procs, or a
+block. You can also give it a mixute of Procs and a block if you really
+want:
+</p>
+<pre>
+    a = []
+    a.events.fire_on_method('&lt;&lt;'.to_sym, :item_injected)
+    a.events.listen(:injected, [Proc.new { |event_data| puts event_data; }, Proc.new { puts 'Hello, I was called!'; }])
 
     a &lt;&lt; 'this is a test'
 </pre>

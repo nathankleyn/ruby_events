@@ -58,6 +58,15 @@ a little bit of sugar:
     end
     
     a << 'this is a test'
+    
+You can supply the `listen` method with a Proc, an array of Procs, or a block.
+You can also give it a mixute of Procs and a block if you really want:
+
+    a = []
+    a.events.fire_on_method('<<'.to_sym, :item_injected)
+    a.events.listen(:injected, [Proc.new { |event_data| puts event_data; }, Proc.new { puts 'Hello, I was called!'; }])
+    
+    a << 'this is a test'
 
 These method events will automatically be passed the arguments that were passed
 to that method when it was called. Don't let your imagination stop there. You
