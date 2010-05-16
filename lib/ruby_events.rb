@@ -43,20 +43,30 @@ module RubyEvents
     # Set an event to fire when passed method is called. This is useful for
     # adding callbacks or events to built-in methods.
     def fire_on_method(method, event_type, &block)
+      parent = @parent
       method_s = method.to_s
-      old_method = (method_s + '_event_old').to_sym
+      old_method = ('ruby_events_' + method_s + '_event_old').to_sym
       old_method_s = old_method.to_s
-      if @parent && @parent.respond_to?(method) && !@parent.respond_to?(old_method)
-        @parent = @parent.class
-        # Make sure the self.send is at the end, or we won't return what we
-        # are supposed to.
-        @parent.class_eval do
+      if parent && parent.respond_to?(method)
+        parent.class.class_eval do
+          # If the parent is already responding to the alias method, it means
+          # the fire_on_method event was already triggered. Remove the other
+          # event and continue if this happens.
+          if parent.respond_to?(old_method, true)
+            undef_method method
+            alias_method method, old_method
+            undef_method old_method
+          end
+        
           alias_method old_method, method
+          private old_method
           
+          # Make sure the self.send is at the end, or we won't return what we
+          # are supposed to.
           define_method "#{method_s}" do |*args|
             events.fire(event_type, *args)
-            block.call(*args) if(block) # calling the block we've been passed
-            self.send(old_method, *args)
+            block.call(*args) if(block) # Calling the block we've been passed
+            __send__(old_method, *args)
           end
         end
       else
