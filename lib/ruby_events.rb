@@ -48,19 +48,17 @@ module RubyEvents
       old_method_s = old_method.to_s
       if @parent && @parent.respond_to?(method) && !@parent.respond_to?(old_method)
         @parent = @parent.class
-        @parent.class_eval do
-          alias_method old_method, method
-        end
-        # FIXME: We need to find a way to call the block that's been passed
-        # so they can define the arguments they want to pass to the event.
-        #
-        # We are using self.send instead of calling the method directory because
-        # methods like << can not be resolved as a method properly once they've
-        # had the _event_old suffix tacked on the end.
-        #
         # Make sure the self.send is at the end, or we won't return what we
         # are supposed to.
-        @parent.class_eval('def ' + method_s + '(*args); events.fire(:' + event_type.to_s + ', *args); self.send("' + old_method_s + '".to_sym, *args); end')
+        @parent.class_eval do
+          alias_method old_method, method
+          
+          define_method "#{method_s}" do |*args|
+            events.fire(event_type, *args)
+            block.call(*args) if(block) # calling the block we've been passed
+            self.send(old_method, *args)
+          end
+        end
       else
         # TODO: Need to raise exception here.
       end
