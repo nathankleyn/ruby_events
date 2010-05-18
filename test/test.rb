@@ -72,7 +72,7 @@ class TestRubyEvents < Test::Unit::TestCase
 
       a.events.fire_on_method(:merge, :merged)
       a.events.listen(:merged) do |items|
-        items[0][:three] = 3
+        items[:three] = 3
         puts 'test_fire_on_method, 3.1: The hash will have the extra item.'
         items
       end
@@ -88,7 +88,7 @@ class TestRubyEvents < Test::Unit::TestCase
         puts 'test_fire_on_method, 4.1: Block triggered by fire_on_method.'
       end
       a.events.listen(:merged) do |items|
-        items[0][:three] = 3
+        items[:three] = 3
         puts 'test_fire_on_method, 4.2: The hash will have the extra item.'
         items
       end

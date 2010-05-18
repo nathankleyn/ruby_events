@@ -79,11 +79,7 @@ Effectively, you can use the events as callbacks on any method:
 
     a.events.fire_on_method(:merge, :merged)
     a.events.listen(:merged) do |items|
-      # This is the hard part: because the items variable is actually just an
-      # array of all variables passed to the function that fired the event,
-      # you need to access the argument you're interested in; in this case,
-      # Hash.merge only takes one argument, and we'll be using it.
-      items[0][:three] = 3
+      items[:three] = 3
       puts 'The hash will have the extra item.'
       items
     end

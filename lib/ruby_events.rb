@@ -9,7 +9,7 @@ module RubyEvents
   class Events
     # The current version of RubyEvents.
     def self.version
-      '0.0.7'
+      '0.0.8'
     end
     
     # Initialize the events class by instantiating the class methods we'll be
@@ -36,7 +36,7 @@ module RubyEvents
     # arguments as provided.
     def fire(event_type, *arguments)
       @events[event_type].each do |event|
-        event.call arguments
+        event.call(*arguments)
       end if event_is_defined(event_type)
     end
     

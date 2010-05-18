@@ -1,7 +1,6 @@
 # 
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
- 
 
 require 'rubygems'
 require 'rake'
@@ -12,7 +11,7 @@ require 'rake/testtask'
 
 spec = Gem::Specification.new do |s|
   s.name = 'ruby_events'
-  s.version = '0.0.7'
+  s.version = '0.0.8'
   s.has_rdoc = true
   s.extra_rdoc_files = ['README.markdown']
   s.summary = 'A really simple event implementation that hooks into the Object class. Now all your objects can join in the fun of firing events!'
