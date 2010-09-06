@@ -69,13 +69,27 @@ module RubyEvents
           end
         end
       else
-        raise RuntimeError.new('The given object does not respond to method you are trying to intercept calls to.')
+        raise 'The given object does not respond to method you are trying to intercept calls to.'
       end
     end
 
     # Remove a method from the listening queue.
     def remove(event_type, event)
       @events[event_type].delete_if {|stored_event| stored_event == event} if event_is_defined(event_type)
+    end
+
+    # Remove a fire on method alias event.
+    def remove_fire_on_method(method)
+      parent, old_method = @parent, ('ruby_events_' + method.to_s + '_event_old').to_sym
+      parent.class.class_eval do
+        if parent.respond_to?(old_method, true)
+          remove_method method
+          alias_method method, old_method
+          public method
+        else
+          raise 'The fire on method trigger you were trying to remove does not exist.'
+        end
+      end
     end
     
     private
