@@ -23,7 +23,7 @@ module RubyEvents
     def listen(event_type, procs = nil, &block)
       @events[event_type] = [] unless event_is_defined(event_type)
       procs_collected = []
-      if procs.respond_to?(:each)
+      if procs.respond_to?(:each) && procs.respond_to?(:to_a)
         procs_collected += procs.to_a
       elsif procs
         procs_collected << procs
