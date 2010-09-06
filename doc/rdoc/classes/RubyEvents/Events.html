@@ -101,6 +101,7 @@ calling and receiving events.
       <a href="#M000004">listen</a>&nbsp;&nbsp;
       <a href="#M000003">new</a>&nbsp;&nbsp;
       <a href="#M000007">remove</a>&nbsp;&nbsp;
+      <a href="#M000008">remove_fire_on_method</a>&nbsp;&nbsp;
       <a href="#M000002">version</a>&nbsp;&nbsp;
       </div>
     </div>
@@ -170,7 +171,7 @@ href="../RubyEvents.html">RubyEvents</a>.
 <pre>
     <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 11</span>
 11:     <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">version</span>
-12:       <span class="ruby-value str">'0.0.7'</span>
+12:       <span class="ruby-value str">'1.1.0'</span>
 13:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
@@ -200,7 +201,7 @@ arguments as provided.
     <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 37</span>
 37:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fire</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">arguments</span>)
 38:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">event</span><span class="ruby-operator">|</span>
-39:         <span class="ruby-identifier">event</span>.<span class="ruby-identifier">call</span> <span class="ruby-identifier">arguments</span>
+39:         <span class="ruby-identifier">event</span>.<span class="ruby-identifier">call</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">arguments</span>)
 40:       <span class="ruby-keyword kw">end</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">event_is_defined</span>(<span class="ruby-identifier">event_type</span>)
 41:     <span class="ruby-keyword kw">end</span>
 </pre>
@@ -229,28 +230,35 @@ methods.
 <pre>
     <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 45</span>
 45:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fire_on_method</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">event_type</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
-46:       <span class="ruby-identifier">method_s</span> = <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span>
-47:       <span class="ruby-identifier">old_method</span> = (<span class="ruby-identifier">method_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
-48:       <span class="ruby-identifier">old_method_s</span> = <span class="ruby-identifier">old_method</span>.<span class="ruby-identifier">to_s</span>
-49:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@parent</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">method</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">old_method</span>)
-50:         <span class="ruby-ivar">@parent</span> = <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class</span>
-51:         <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
-52:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">old_method</span>, <span class="ruby-identifier">method</span>
-53:         <span class="ruby-keyword kw">end</span>
-54:         <span class="ruby-comment cmt"># FIXME: We need to find a way to call the block that's been passed</span>
-55:         <span class="ruby-comment cmt"># so they can define the arguments they want to pass to the event.</span>
-56:         <span class="ruby-comment cmt">#</span>
-57:         <span class="ruby-comment cmt"># We are using self.send instead of calling the method directory because</span>
-58:         <span class="ruby-comment cmt"># methods like &lt;&lt; can not be resolved as a method properly once they've</span>
-59:         <span class="ruby-comment cmt"># had the _event_old suffix tacked on the end.</span>
-60:         <span class="ruby-comment cmt">#</span>
-61:         <span class="ruby-comment cmt"># Make sure the self.send is at the end, or we won't return what we</span>
-62:         <span class="ruby-comment cmt"># are supposed to.</span>
-63:         <span class="ruby-ivar">@parent</span>.<span class="ruby-identifier">class_eval</span>(<span class="ruby-value str">'def '</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'(*args); events.fire(:'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">event_type</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">', *args); self.send(&quot;'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">old_method_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'&quot;.to_sym, *args); end'</span>)
-64:       <span class="ruby-keyword kw">else</span>
-65:         <span class="ruby-comment cmt"># TODO: Need to raise exception here.</span>
-66:       <span class="ruby-keyword kw">end</span>
-67:     <span class="ruby-keyword kw">end</span>
+46:       <span class="ruby-comment cmt"># We alias @parent to parent here, because class_eval can't see outside</span>
+47:       <span class="ruby-comment cmt"># this scope otherwise.</span>
+48:       <span class="ruby-identifier">parent</span>, <span class="ruby-identifier">old_method</span> = <span class="ruby-ivar">@parent</span>, (<span class="ruby-value str">'ruby_events_'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
+49:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">parent</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">method</span>)
+50:         <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
+51:           <span class="ruby-comment cmt"># If the parent is already responding to the alias method, it means</span>
+52:           <span class="ruby-comment cmt"># the fire_on_method event was already triggered. Remove the other</span>
+53:           <span class="ruby-comment cmt"># event and continue if this happens.</span>
+54:           <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">old_method</span>, <span class="ruby-keyword kw">true</span>)
+55:             <span class="ruby-identifier">remove_method</span> <span class="ruby-identifier">method</span>
+56:             <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">method</span>, <span class="ruby-identifier">old_method</span>
+57:             <span class="ruby-identifier">remove_method</span> <span class="ruby-identifier">old_method</span>
+58:           <span class="ruby-keyword kw">end</span>
+59:         
+60:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">old_method</span>, <span class="ruby-identifier">method</span>
+61:           <span class="ruby-identifier">private</span> <span class="ruby-identifier">old_method</span>
+62:           
+63:           <span class="ruby-comment cmt"># Make sure the self.send is at the end, or we won't return what we</span>
+64:           <span class="ruby-comment cmt"># are supposed to.</span>
+65:           <span class="ruby-identifier">define_method</span> <span class="ruby-identifier">method</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-operator">*</span><span class="ruby-identifier">args</span><span class="ruby-operator">|</span>
+66:             <span class="ruby-identifier">events</span>.<span class="ruby-identifier">fire</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+67:             <span class="ruby-identifier">block</span>.<span class="ruby-identifier">call</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">block</span> <span class="ruby-comment cmt"># Calling the block we've been passed</span>
+68:             <span class="ruby-identifier">__send__</span>(<span class="ruby-identifier">old_method</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+69:           <span class="ruby-keyword kw">end</span>
+70:         <span class="ruby-keyword kw">end</span>
+71:       <span class="ruby-keyword kw">else</span>
+72:         <span class="ruby-identifier">raise</span> <span class="ruby-value str">'The given object does not respond to method you are trying to intercept calls to.'</span>
+73:       <span class="ruby-keyword kw">end</span>
+74:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -278,7 +286,7 @@ Proc&#8216;s, or a block.
 23:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">listen</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">procs</span> = <span class="ruby-keyword kw">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
 24:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>] = [] <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">event_is_defined</span>(<span class="ruby-identifier">event_type</span>)
 25:       <span class="ruby-identifier">procs_collected</span> = []
-26:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">procs</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:each</span>)
+26:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">procs</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:each</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">procs</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:to_a</span>)
 27:         <span class="ruby-identifier">procs_collected</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">procs</span>.<span class="ruby-identifier">to_a</span>
 28:       <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">procs</span>
 29:         <span class="ruby-identifier">procs_collected</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">procs</span>
@@ -308,10 +316,45 @@ Remove a method from the listening queue.
             onclick="toggleCode('M000007-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000007-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 70</span>
-70:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">remove</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">event</span>)
-71:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">delete_if</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">stored_event</span><span class="ruby-operator">|</span> <span class="ruby-identifier">stored_event</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">event</span>} <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">event_is_defined</span>(<span class="ruby-identifier">event_type</span>)
-72:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 77</span>
+77:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">remove</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">event</span>)
+78:       <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">delete_if</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">stored_event</span><span class="ruby-operator">|</span> <span class="ruby-identifier">stored_event</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">event</span>} <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">event_is_defined</span>(<span class="ruby-identifier">event_type</span>)
+79:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000008" class="method-detail">
+        <a name="M000008"></a>
+
+        <div class="method-heading">
+          <a href="#M000008" class="method-signature">
+          <span class="method-name">remove_fire_on_method</span><span class="method-args">(method)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Remove a <a href="Events.html#M000005">fire</a> on method alias event.
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000008-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000008-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/ruby_events.rb, line 82</span>
+82:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">remove_fire_on_method</span>(<span class="ruby-identifier">method</span>)
+83:       <span class="ruby-identifier">parent</span>, <span class="ruby-identifier">old_method</span> = <span class="ruby-ivar">@parent</span>, (<span class="ruby-value str">'ruby_events_'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-value str">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
+84:       <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword kw">do</span>
+85:         <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">old_method</span>, <span class="ruby-keyword kw">true</span>)
+86:           <span class="ruby-identifier">remove_method</span> <span class="ruby-identifier">method</span>
+87:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">method</span>, <span class="ruby-identifier">old_method</span>
+88:           <span class="ruby-identifier">public</span> <span class="ruby-identifier">method</span>
+89:         <span class="ruby-keyword kw">else</span>
+90:           <span class="ruby-identifier">raise</span> <span class="ruby-value str">'The fire on method trigger you were trying to remove does not exist.'</span>
+91:         <span class="ruby-keyword kw">end</span>
+92:       <span class="ruby-keyword kw">end</span>
+93:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
