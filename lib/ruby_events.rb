@@ -9,7 +9,7 @@ module RubyEvents
   class Events
     # The current version of RubyEvents.
     def self.version
-      '0.0.8'
+      '1.0.0'
     end
     
     # Initialize the events class by instantiating the class methods we'll be
@@ -43,19 +43,18 @@ module RubyEvents
     # Set an event to fire when passed method is called. This is useful for
     # adding callbacks or events to built-in methods.
     def fire_on_method(method, event_type, &block)
-      parent = @parent
-      method_s = method.to_s
-      old_method = ('ruby_events_' + method_s + '_event_old').to_sym
-      old_method_s = old_method.to_s
+      # We alias @parent to parent here, because class_eval can't see outside
+      # this scope otherwise.
+      parent, old_method = @parent, ('ruby_events_' + method.to_s + '_event_old').to_sym
       if parent && parent.respond_to?(method)
         parent.class.class_eval do
           # If the parent is already responding to the alias method, it means
           # the fire_on_method event was already triggered. Remove the other
           # event and continue if this happens.
           if parent.respond_to?(old_method, true)
-            undef_method method
+            remove_method method
             alias_method method, old_method
-            undef_method old_method
+            remove_method old_method
           end
         
           alias_method old_method, method
@@ -63,14 +62,14 @@ module RubyEvents
           
           # Make sure the self.send is at the end, or we won't return what we
           # are supposed to.
-          define_method "#{method_s}" do |*args|
+          define_method method do |*args|
             events.fire(event_type, *args)
-            block.call(*args) if(block) # Calling the block we've been passed
+            block.call(*args) if block # Calling the block we've been passed
             __send__(old_method, *args)
           end
         end
       else
-        # TODO: Need to raise exception here.
+        raise RuntimeError.new('The given object does not respond to method you are trying to intercept calls to.')
       end
     end
 

@@ -38,8 +38,9 @@ class TestRubyEvents < Test::Unit::TestCase
         end
       end
 
-      a.events.listen(:injected) do |event_data|
-        puts event_data;
+      a.events.listen(:injected) do |a, item|
+        puts a
+        puts item
       end
 
       a.inject('test_fire_on_method_custom, 1.1: This is a test.')
@@ -57,6 +58,7 @@ class TestRubyEvents < Test::Unit::TestCase
       e.events.listen(:called, [Proc.new { puts 'test_fire_on_method, 1.4: This message confirms Proc array events are triggered.' }])
       e.call
     end
+    
     assert_nothing_raised do
       a = []
       a.events.fire_on_method('<<'.to_sym, :item_injected)
@@ -66,6 +68,7 @@ class TestRubyEvents < Test::Unit::TestCase
 
       a << 'test_fire_on_method, 2.2: This is the Array class fire_on_method test data'
     end
+
     assert_nothing_raised do
       a = {:one => 1}
       b = {:two => 3}

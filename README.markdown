@@ -42,8 +42,9 @@ You can do cooler and more advanced things, like add listeners to an Array:
       end
     end
 
-    a.events.listen(:injected) do |event_data|
-      puts event_data;
+    a.events.listen(:injected) do |a, item|
+      puts a
+      puts item
     end
     
     a.inject('This is a test')
@@ -54,7 +55,7 @@ a little bit of sugar:
     a = []
     a.events.fire_on_method('<<'.to_sym, :item_injected)
     a.events.listen(:injected) do |event_data|
-      puts event_data;
+      puts event_data
     end
     
     a << 'this is a test'
