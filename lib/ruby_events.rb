@@ -107,6 +107,6 @@ class Object
   # Attribute reader for the events accessor. Returns a new instance of the
   # events class if not defined, or the already defined class otherwise.
   def events
-    @events || @events = RubyEvents::Events.new(self)
+    @events ||= RubyEvents::Events.new(self)
   end
 end
