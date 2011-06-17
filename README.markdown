@@ -114,7 +114,7 @@ Effectively, you can use the events as callbacks on any method:
 
     puts a.merge(b)
 
-All ruby_events functionality is just an object.events call away.
+All RubyEvents functionality is just an object.events call away.
 
 ## Licence
 
