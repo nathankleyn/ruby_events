@@ -1,0 +1,32 @@
+# CHANGELOG
+
+## v 1.1.0 - 17th June, 2011
+
+* :fire_on_method now takes an array of Symbols to attach to, so you can define
+handlers for multiple methods, including their aliases.
+* Refactored into a split Module - this allows you to require ruby_events/core
+to get the library without extending Object by default.
+* Added proper .gemspec, and cleaned up Rakefile of all bogus tasks.
+* Added proper dependencies to the .gemspec.
+* Adding MIT license for those who were asking about license restrictions.
+
+***
+
+## v 1.0.2 - 6th September, 2011
+
+* Updating docs.
+
+***
+
+## v 1.0.1 - 6th September, 2011
+
+* Fix for Enumerable detection that was causing exceptions for some people.
+
+***
+
+## v 1.0.0 - 6th September, 2011
+
+* Added proper spec tests in place of the original crappy tests that didn't
+really help with anything.
+* Cleanup of Rakefile to get rid of warnings and errors.
+* Adding comments and regerating docs.

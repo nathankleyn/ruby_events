@@ -34,8 +34,8 @@
         <div class="section-body">
           <ul>
           
-            <li><a href="../lib/ruby_events_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
-              class="thickbox" title="lib/ruby_events.rb">lib/ruby_events.rb</a></li>
+            <li><a href="../lib/ruby_events/core_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+              class="thickbox" title="lib/ruby_events/core.rb">lib/ruby_events/core.rb</a></li>
           
           </ul>
         </div>
@@ -166,7 +166,7 @@ using.</p>
             
             <div class="method-source-code" id="new-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 17</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 17</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">parent</span>)
   <span class="ruby-ivar">@parent</span>, <span class="ruby-ivar">@events</span> = <span class="ruby-identifier">parent</span>, {}
 <span class="ruby-keyword">end</span></pre>
@@ -199,9 +199,9 @@ using.</p>
             
             <div class="method-source-code" id="version-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 11</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 11</span>
 <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">version</span>
-  <span class="ruby-string">'1.1.0.beta2'</span>
+  <span class="ruby-string">'1.1.0'</span>
 <span class="ruby-keyword">end</span></pre>
             </div><!-- version-source -->
             
@@ -239,7 +239,7 @@ arguments as provided.</p>
             
             <div class="method-source-code" id="fire-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 37</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 37</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">fire</span>(<span class="ruby-identifier">event_type</span>, *<span class="ruby-identifier">arguments</span>)
   <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">event</span><span class="ruby-operator">|</span>
     <span class="ruby-identifier">event</span>.<span class="ruby-identifier">call</span>(*<span class="ruby-identifier">arguments</span>)
@@ -275,8 +275,15 @@ adding callbacks or events to built-in methods.</p>
             
             <div class="method-source-code" id="fire_on_method-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 45</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 45</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">fire_on_method</span>(<span class="ruby-identifier">method</span>, <span class="ruby-identifier">event_type</span>, &amp;<span class="ruby-identifier">block</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">method</span>.<span class="ruby-identifier">is_a?</span> <span class="ruby-constant">Array</span>
+    <span class="ruby-identifier">method</span>.<span class="ruby-identifier">map</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">sym</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">fire_on_method</span> <span class="ruby-identifier">sym</span>, <span class="ruby-identifier">event_type</span>, &amp;<span class="ruby-identifier">block</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">return</span>
+  <span class="ruby-keyword">end</span>
+  
   <span class="ruby-comment"># We alias @parent to parent here, because class_eval can't see outside</span>
   <span class="ruby-comment"># this scope otherwise.</span>
   <span class="ruby-identifier">parent</span>, <span class="ruby-identifier">old_method</span> = <span class="ruby-ivar">@parent</span>, (<span class="ruby-string">'ruby_events_'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-string">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
@@ -336,7 +343,7 @@ Proc’s, or a block.</p>
             
             <div class="method-source-code" id="listen-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 23</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 23</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">listen</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">procs</span> = <span class="ruby-keyword">nil</span>, &amp;<span class="ruby-identifier">block</span>)
   <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>] = [] <span class="ruby-keyword">unless</span> <span class="ruby-identifier">event_is_defined</span>(<span class="ruby-identifier">event_type</span>)
   <span class="ruby-identifier">procs_collected</span> = []
@@ -377,7 +384,7 @@ Proc’s, or a block.</p>
             
             <div class="method-source-code" id="remove-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 77</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 84</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">remove</span>(<span class="ruby-identifier">event_type</span>, <span class="ruby-identifier">event</span>)
   <span class="ruby-ivar">@events</span>[<span class="ruby-identifier">event_type</span>].<span class="ruby-identifier">delete_if</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">stored_event</span><span class="ruby-operator">|</span> <span class="ruby-identifier">stored_event</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">event</span>} <span class="ruby-keyword">if</span> <span class="ruby-identifier">event_is_defined</span>(<span class="ruby-identifier">event_type</span>)
 <span class="ruby-keyword">end</span></pre>
@@ -410,7 +417,7 @@ Proc’s, or a block.</p>
             
             <div class="method-source-code" id="remove_fire_on_method-source">
 <pre>
-<span class="ruby-comment"># File lib/ruby_events.rb, line 82</span>
+<span class="ruby-comment"># File lib/ruby_events/core.rb, line 89</span>
 <span class="ruby-keyword">def</span> <span class="ruby-identifier">remove_fire_on_method</span>(<span class="ruby-identifier">method</span>)
   <span class="ruby-identifier">parent</span>, <span class="ruby-identifier">old_method</span> = <span class="ruby-ivar">@parent</span>, (<span class="ruby-string">'ruby_events_'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">method</span>.<span class="ruby-identifier">to_s</span> <span class="ruby-operator">+</span> <span class="ruby-string">'_event_old'</span>).<span class="ruby-identifier">to_sym</span>
   <span class="ruby-identifier">parent</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-keyword">do</span>

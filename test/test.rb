@@ -1,7 +1,27 @@
 require 'test/unit'
-require 'ruby_events'
 
-class TestRubyEvents < Test::Unit::TestCase
+# Note that this is kind of kludgy, for lack of a better way to do it at the
+# moment; the classes are named as such so that the first class in this document
+# always runs first in order for the require's not to mess up the tests.
+
+class TestCoreRubyEvents < Test::Unit::TestCase
+
+  def setup
+    require File.join(File.dirname(__FILE__), '../lib/ruby_events/core')
+  end
+
+  def test_no_patch_on_object
+    assert(Object.respond_to?(:events) === false, "Object should not have been extended with RubyEvents.")
+  end
+  
+end
+
+class TestCoreWithObjectPatchRubyEvents < Test::Unit::TestCase
+
+  def setup
+    require File.join(File.dirname(__FILE__), '../lib/ruby_events/object_patch')
+  end
+  
   def test_class_events
     assert_nothing_raised do
       example = Class.new()
@@ -116,6 +136,22 @@ class TestRubyEvents < Test::Unit::TestCase
       assert(a.include?(:four), 'The hash passed should have the extra item from callback.')
     end
   end
+  
+  def test_fire_on_multiple_methods
+    assert_nothing_raised do
+      a, calls = [], 0
+      
+      a.events.fire_on_method(["<<".to_sym, :push], :item_added)
+      a.events.listen(:item_added) do
+        calls += 1
+      end
+      
+      a << "hello"
+      a.push "world"
+
+      assert(calls == 2, 'There should be two events fired, one for each symbol passed in the array of methods to fire on.')
+    end
+  end
 
   def test_remove_events
     assert_nothing_raised do
@@ -154,5 +190,5 @@ class TestRubyEvents < Test::Unit::TestCase
       assert(!event_called, 'Event called should be false, as the event was removed before being triggered.')
     end
   end
+  
 end
-
