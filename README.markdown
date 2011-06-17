@@ -7,11 +7,24 @@ objects. It's simple, fast and remains Ruby-ish in style and usage.
 
 ## Usage
 
-Using ruby_events is simple! Because all objects are automatically extended
-with the ruby_events functionality, it's as simple as:
+Using ruby_events is simple
 
     require 'rubygems'
     require 'ruby_events'
+    
+By default, all Objects are extended with a RubyEvents, and given a new method
+called `events`. You can also require RubyEvents without the Object patch:
+
+    require 'rubygems'
+    require 'ruby_events/core'
+
+This allows you to patch objects yourself, or apply the RubyEvents module
+however you like.
+
+### Examples
+
+RubyEvents allows you to use events like callbacks, whether within your own
+classes, or by monkey patching others:
 
     class Example
       def initialize
