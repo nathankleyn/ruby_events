@@ -4,7 +4,7 @@
 
 * Fixed depedency for RSpec to be the right version.
 * Migrated tests to RSpec
-* Adding updates to README.
+* Lots of significant updates to README.
 * Regenerated docs, will be moving these to the GitHub wiki with the next
 release.
 

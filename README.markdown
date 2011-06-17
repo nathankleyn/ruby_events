@@ -1,5 +1,14 @@
-Use ruby_events to add event listening and firing capabilities to all Ruby
+# RubyEvents
+
+Use RubyEvents to add event listening and firing capabilities to all Ruby
 objects. It's simple, fast and remains Ruby-ish in style and usage.
+
+A really simple event implementation that hooks into the Object class by
+default, or can be used to extend modules and classes. Now all your objects can
+join in the fun of firing events! RubyEvents even offers you callbacks on
+already defined methods, without having to do the hard work yourself - yes this
+means you can have callbacks on standard library methods without having to
+monkey patch!
 
 ## Installation
 
@@ -62,7 +71,7 @@ You can do cooler and more advanced things, like add listeners to an Array:
     
     a.inject('This is a test')
 
-But because this is a fairly common pattern, ruby_events does it for you with
+But because this is a fairly common pattern, RubyEvents does it for you with
 a little bit of sugar:
 
     a = []
