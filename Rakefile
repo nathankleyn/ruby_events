@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rake'
 require 'rake/clean'
 require 'rdoc/task'
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 
 RDoc::Task.new do |rdoc|
   files =['README.markdown', 'lib/**/*.rb']
@@ -13,6 +13,4 @@ RDoc::Task.new do |rdoc|
   rdoc.options << '--line-numbers'
 end
 
-Rake::TestTask.new do |t|
-  t.test_files = FileList['test/**/*.rb']
-end
+RSpec::Core::RakeTask.new(:spec)

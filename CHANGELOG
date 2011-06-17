@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v 1.1.1 - ?
+
+* Fixed depedency for RSpec to be the right version.
+* Migrated tests to RSpec
+* Adding updates to README.
+* Regenerated docs, will be moving these to the GitHub wiki with the next
+release.
+
 ## v 1.1.0 - 17th June, 2011
 
 * :fire_on_method now takes an array of Symbols to attach to, so you can define
