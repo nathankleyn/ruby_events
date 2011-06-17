@@ -1,5 +1,5 @@
-Fri, 17 Jun 2011 23:34:57 +0100
+Fri, 17 Jun 2011 23:47:39 +0100
 lib/ruby_events.rb	Fri, 17 Jun 2011 23:07:23 +0100
-lib/ruby_events/core.rb	Fri, 17 Jun 2011 23:07:45 +0100
-README.markdown	Sat, 28 May 2011 21:57:02 +0100
+lib/ruby_events/core.rb	Fri, 17 Jun 2011 23:35:59 +0100
+README.markdown	Fri, 17 Jun 2011 23:40:05 +0100
 lib/ruby_events/object_patch.rb	Fri, 17 Jun 2011 20:53:32 +0100
