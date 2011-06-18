@@ -9,7 +9,7 @@ module RubyEvents
   class Events
     # The current version of RubyEvents.
     def self.version
-      '1.1.0'
+      '1.1.1.beta1'
     end
     
     # Initialize the events class by instantiating the class methods we'll be
