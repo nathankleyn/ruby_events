@@ -13,5 +13,5 @@ GEM_SPEC = Gem::Specification.new do |spec|
   spec.require_path = "lib"
   spec.bindir = "bin"
   
-  spec.add_development_dependency("rspec", "~>2.6.0")
+  spec.add_development_dependency("rspec", "~>2.13.0")
 end
